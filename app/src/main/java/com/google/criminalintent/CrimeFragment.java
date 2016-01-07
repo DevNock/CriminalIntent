@@ -2,12 +2,16 @@ package com.google.criminalintent;
 
 
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -24,6 +28,7 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import android.support.v7.app.ActionBar;
 
 /**
  * Created by Sergey on 23.11.2015.
@@ -40,12 +45,12 @@ public class CrimeFragment extends Fragment {
     private Crime crime;
     private EditText titleField;
     private Button crimeDateButton;
-    private Button crimeTimeButton;
     private CheckBox crimeSolvedCheckBox;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         UUID crimeID = (UUID)getArguments().getSerializable(EXTRA_CRIME_ID);
         crime = CrimeLab.get(getActivity()).getCrime(crimeID);
     }
@@ -57,6 +62,7 @@ public class CrimeFragment extends Fragment {
 
         titleField = (EditText) view.findViewById(R.id.crimeTitle);
         titleField.setText(crime.getTitle());
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         titleField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -84,17 +90,6 @@ public class CrimeFragment extends Fragment {
                 DatePickerFragment dialog = DatePickerFragment.newInstance(crime.getDate());
                 dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
                 dialog.show(fm, DIALOG_DATE);
-            }
-        });
-
-        crimeTimeButton = (Button)view.findViewById(R.id.crimeTimeButton);
-        crimeTimeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                TimePickerFragment dialog = TimePickerFragment.newInstance();
-                DatePickerFragment ddialog = DatePickerFragment.newInstance(crime.getDate());
-                dialog.show(fm, DIALOG_TIME);
             }
         });
 
