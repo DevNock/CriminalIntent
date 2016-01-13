@@ -15,6 +15,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -47,12 +50,18 @@ public class CrimeFragment extends Fragment {
     private Button crimeDateButton;
     private CheckBox crimeSolvedCheckBox;
 
+    private static final int DELETE_RESULT = 0;
+    private static final int SAVE_RESULT = 1;
+
+    private int result;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         UUID crimeID = (UUID)getArguments().getSerializable(EXTRA_CRIME_ID);
         crime = CrimeLab.get(getActivity()).getCrime(crimeID);
+        result = SAVE_RESULT;
     }
 
     @Nullable
@@ -108,6 +117,23 @@ public class CrimeFragment extends Fragment {
 
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_crime, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.fragment_crime_menu_delete:
+                result = DELETE_RESULT;
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void updateDate(){
         String format = "EEEE, d MMMM, yyyy";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
@@ -138,6 +164,15 @@ public class CrimeFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        CrimeLab.get(getActivity()).saveCrimes();
+        switch (result) {
+            case SAVE_RESULT:
+                CrimeLab.get(getActivity()).saveCrimes();
+                return;
+            case DELETE_RESULT:
+                CrimeLab.get(getActivity()).deleteCrime(crime);
+                return;
+            default:
+                break;
+        }
     }
 }

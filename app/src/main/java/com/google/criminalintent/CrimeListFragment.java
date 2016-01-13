@@ -124,6 +124,7 @@ public class CrimeListFragment extends ListFragment {
         Intent intent = new Intent(getActivity(), CrimePagerActivity.class);
         intent.putExtra(CrimeFragment.EXTRA_CRIME_ID, crime.getId());
         startActivity(intent);
+        ((CrimeAdapter)getListAdapter()).notifyDataSetChanged();
     }
 
     @Override
@@ -139,6 +140,32 @@ public class CrimeListFragment extends ListFragment {
         MenuItem showSubtitles = menu.findItem(R.id.menu_item_show_subtitle);
         if(subtitlesVisible && showSubtitles != null){
             showSubtitles.setTitle(R.string.hide_subtitle);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu_item_new_crime:
+                Crime crime = new Crime();
+                CrimeLab.get(getActivity()).addCrime(crime);
+                Intent intent = new Intent(getActivity(), CrimePagerActivity.class);
+                intent.putExtra(CrimeFragment.EXTRA_CRIME_ID, crime.getId());
+                startActivityForResult(intent, 0);
+                return true;
+            case R.id.menu_item_show_subtitle:
+                if(((AppCompatActivity)getActivity()).getSupportActionBar().getSubtitle() == null) {
+                    ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle(R.string.subtitle);
+                    item.setTitle(R.string.hide_subtitle);
+                    subtitlesVisible = true;
+                }else{
+                    ((AppCompatActivity)getActivity()).getSupportActionBar().setSubtitle(null);
+                    item.setTitle(R.string.show_subtitle);
+                    subtitlesVisible = false;
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -163,33 +190,9 @@ public class CrimeListFragment extends ListFragment {
         return super.onContextItemSelected(item);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item    .getItemId()){
-            case R.id.menu_item_new_crime:
-                Crime crime = new Crime();
-                CrimeLab.get(getActivity()).addCrime(crime);
-                Intent intent = new Intent(getActivity(), CrimePagerActivity.class);
-                intent.putExtra(CrimeFragment.EXTRA_CRIME_ID, crime.getId());
-                startActivityForResult(intent, 0);
-                return true;
-            case R.id.menu_item_show_subtitle:
-                if(((AppCompatActivity)getActivity()).getSupportActionBar().getSubtitle() == null) {
-                    ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle(R.string.subtitle);
-                    item.setTitle(R.string.hide_subtitle);
-                    subtitlesVisible = true;
-                }else{
-                    ((AppCompatActivity)getActivity()).getSupportActionBar().setSubtitle(null);
-                    item.setTitle(R.string.show_subtitle);
-                    subtitlesVisible = false;
-                }
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
-    private class CrimeAdapter extends ArrayAdapter<Crime>{
+
+    public class CrimeAdapter extends ArrayAdapter<Crime>{
 
         public CrimeAdapter(ArrayList<Crime> crimes) {
             super(getActivity(), 0, crimes);

@@ -44,6 +44,7 @@ public class CrimePagerActivity extends AppCompatActivity {
                 Crime crime = crimes.get(pos);
                 return CrimeFragment.newInstance(crime.getId());
             }
+
         });
 
         UUID crimeID = (UUID) getIntent().getSerializableExtra(CrimeFragment.EXTRA_CRIME_ID);
@@ -72,6 +73,8 @@ public class CrimePagerActivity extends AppCompatActivity {
             public void onPageScrollStateChanged(int state) {
 
             }
+
+
         });
     }
 
