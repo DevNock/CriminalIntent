@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 import android.support.v7.app.ActionBar;
+import android.widget.ImageButton;
 
 /**
  * Created by Sergey on 23.11.2015.
@@ -49,6 +50,7 @@ public class CrimeFragment extends Fragment {
     private EditText titleField;
     private Button crimeDateButton;
     private CheckBox crimeSolvedCheckBox;
+    private ImageButton photoButton;
 
     private static final int DELETE_RESULT = 0;
     private static final int SAVE_RESULT = 1;
@@ -109,6 +111,15 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 crime.setSolved(isChecked);
+            }
+        });
+
+        photoButton = (ImageButton) view.findViewById(R.id.crime_imageButton);
+        photoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), CrimeCameraActivity.class);
+                startActivity(intent);
             }
         });
 
