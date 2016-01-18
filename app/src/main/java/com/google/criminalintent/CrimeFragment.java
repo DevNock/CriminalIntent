@@ -14,6 +14,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,9 +43,12 @@ public class CrimeFragment extends Fragment {
     public static final String EXTRA_CRIME_ID =
             "com.google.android.criminalintent.crime_id";
 
+    private static final String TAG = "CrimeFragment";
+
     private static final String DIALOG_DATE = "date";
     private static final String DIALOG_TIME = "time";
     private static final int REQUEST_DATE = 0;
+    private static final int REQUEST_PHOTO = 1;
 
     private Crime crime;
     private EditText titleField;
@@ -102,6 +106,7 @@ public class CrimeFragment extends Fragment {
                 dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
                 dialog.show(fm, DIALOG_DATE);
 
+
             }
         });
 
@@ -119,7 +124,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CrimeCameraActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_PHOTO);
             }
         });
 
@@ -139,6 +144,7 @@ public class CrimeFragment extends Fragment {
         switch(item.getItemId()) {
             case R.id.fragment_crime_menu_delete:
                 result = DELETE_RESULT;
+                getActivity().finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -164,12 +170,20 @@ public class CrimeFragment extends Fragment {
         if(resultCode != Activity.RESULT_OK) {
             return;
         }
-        if (requestCode == REQUEST_DATE){
-            Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
-            crime.setDate(date);
-            updateDate();
+        switch (requestCode) {
+            case REQUEST_DATE:
+                Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+                crime.setDate(date);
+                updateDate();
+                return;
+            case REQUEST_PHOTO:
+                String fileName = (String) data.getSerializableExtra(CrimeCameraFragment.EXTRA_PHOTO_FILENAME);
+                if(fileName != null){
+                    Photo photo = new Photo(fileName);
+                    crime.setPhoto(photo);
+                    Log.i(TAG, "Crime: " + crime.getTitle() + " has a photo");
+                }
         }
-
     }
 
     @Override
