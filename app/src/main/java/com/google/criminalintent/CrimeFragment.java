@@ -214,7 +214,8 @@ public class CrimeFragment extends Fragment {
                             .getAbsolutePath();
                     File file = new File(path);
                     file.delete();
-
+                    crime.setPhoto(null);
+                    photoView.setImageDrawable(null);
                 }
         }
         return super.onContextItemSelected(item);
