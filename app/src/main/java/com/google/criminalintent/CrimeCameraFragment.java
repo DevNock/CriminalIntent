@@ -28,7 +28,7 @@ import java.util.UUID;
 public class CrimeCameraFragment extends Fragment {
     private static final String TAG = "CrimeCameraFragmet";
 
-    public static final String EXTRA_PHOTO_FILENAME = "com.google.criminalitent.photo_filename";
+    public static final String EXTRA_PHOTO_FILENAME = "com.google.criminalintent.photo_filename";
 
     private Camera camera;
     private SurfaceView surfaceView;
@@ -156,6 +156,8 @@ public class CrimeCameraFragment extends Fragment {
     public void onPause() {
         super.onPause();
         if(camera != null){
+            camera.unlock();
+            camera.lock();
             camera.release();
             camera = null;
         }

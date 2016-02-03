@@ -24,7 +24,7 @@ public class CrimeLab {
 
     private CrimeLab(Context appContext){
         this.appContext = appContext;
-        serializer = new CriminalIntentJSONSerializer(appContext, FILENAME);
+        serializer = new CriminalIntentJSONSerializer(this.appContext, FILENAME);
 
         try{
             crimes = serializer.loadCrimes();
