@@ -3,6 +3,8 @@ package com.google.criminalintent;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
+
 /**
  * Created by Sergey on 18.01.2016.
  */

@@ -17,6 +17,7 @@
     <string name="delete_crime">Delete</string>
     <string name="action_mode_delete_title">Delete</string>
     <string name="take">Take</string>
+    <string name="delete_photo">Delete the photo</string>
 
 
 </resources>

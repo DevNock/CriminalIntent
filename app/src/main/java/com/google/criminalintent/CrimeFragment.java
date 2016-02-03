@@ -5,6 +5,7 @@ package com.google.criminalintent;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +29,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.FieldPosition;
 import java.text.ParsePosition;
@@ -52,6 +55,8 @@ public class CrimeFragment extends Fragment {
     private static final String DIALOG_TIME = "time";
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_PHOTO = 1;
+
+    private static final int DELETE_MENU = 0;
 
     private Crime crime;
     private EditText titleField;
@@ -149,10 +154,9 @@ public class CrimeFragment extends Fragment {
                         .show(fm, DIALOG_IMAGE);
             }
         });
+        registerForContextMenu(photoView);
 
         return view;
-
-
     }
 
     private void showPhoto(){
@@ -190,6 +194,32 @@ public class CrimeFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        switch(v.getId()){
+            case R.id.crime_imageView:
+                menu.add(0, DELETE_MENU, 0, getResources().getString(R.string.delete_photo));
+                return;
+            default:
+                super.onCreateContextMenu(menu, v, menuInfo);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case DELETE_MENU:
+                if(crime.getPhoto() != null){
+                    String path = getActivity().getFileStreamPath(crime.getPhoto().getFileName())
+                            .getAbsolutePath();
+                    File file = new File(path);
+                    file.delete();
+
+                }
+        }
+        return super.onContextItemSelected(item);
+    }
+
     private void updateDate(){
         String format = "EEEE, d MMMM, yyyy";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
@@ -218,6 +248,12 @@ public class CrimeFragment extends Fragment {
             case REQUEST_PHOTO:
                 String fileName = (String) data.getSerializableExtra(CrimeCameraFragment.EXTRA_PHOTO_FILENAME);
                 if(fileName != null){
+                    if(crime.getPhoto() != null){
+                        String path = getActivity().getFileStreamPath(crime.getPhoto().getFileName())
+                                .getAbsolutePath();
+                        File file = new File(path);
+                        file.delete();
+                    }
                     Photo photo = new Photo(fileName);
                     crime.setPhoto(photo);
                     showPhoto();

@@ -44,7 +44,9 @@ public class PictureUtils {
             return;
         }
         BitmapDrawable bitmap = (BitmapDrawable) imageView.getDrawable();
-        bitmap.getBitmap().recycle();
-        imageView.setImageDrawable(null);
+        if(bitmap.getBitmap() != null) {
+            bitmap.getBitmap().recycle();
+            imageView.setImageDrawable(null);
+        }
     }
 }
