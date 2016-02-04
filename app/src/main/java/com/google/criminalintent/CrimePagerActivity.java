@@ -17,7 +17,8 @@ import java.util.UUID;
  * Created by Sergey on 06.12.2015.
  */
 
-public class CrimePagerActivity extends AppCompatActivity {
+public class CrimePagerActivity extends AppCompatActivity
+        implements CrimeFragment.Callbacks{
 
     private ViewPager viewPager;
     private ArrayList<Crime> crimes;
@@ -79,4 +80,8 @@ public class CrimePagerActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onCrimeUpdated(Crime crime) {
+
+    }
 }
