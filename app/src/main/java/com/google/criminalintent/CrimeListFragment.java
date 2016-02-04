@@ -166,7 +166,7 @@ public class CrimeListFragment extends ListFragment {
                 Crime crime = new Crime();
                 CrimeLab.get(getActivity()).addCrime(crime);
                 callbacks.onCrimeSelected(crime);
-                //((CrimeAdapter)getListAdapter()).notifyDataSetChanged();
+                ((CrimeAdapter)getListAdapter()).notifyDataSetChanged();
                 return true;
             case R.id.menu_item_show_subtitle:
                 if(((AppCompatActivity)getActivity()).getSupportActionBar().getSubtitle() == null) {

@@ -4,7 +4,6 @@ package com.google.criminalintent;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.BitmapDrawable;
@@ -65,16 +64,11 @@ public class CrimeFragment extends Fragment {
     private CheckBox crimeSolvedCheckBox;
     private ImageButton photoButton;
     private ImageView photoView;
-    private Callbacks callbacks;
 
     private static final int DELETE_RESULT = 0;
     private static final int SAVE_RESULT = 1;
 
     private int result;
-
-    public interface Callbacks {
-        void onCrimeUpdated(Crime crime);
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,18 +77,6 @@ public class CrimeFragment extends Fragment {
         UUID crimeID = (UUID)getArguments().getSerializable(EXTRA_CRIME_ID);
         crime = CrimeLab.get(getActivity()).getCrime(crimeID);
         result = SAVE_RESULT;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        callbacks = (Callbacks)activity;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        callbacks = null;
     }
 
     @Nullable
@@ -113,10 +95,7 @@ public class CrimeFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
                 crime.setTitle(s.toString());
-                callbacks.onCrimeUpdated(crime);
-                getActivity().setTitle(crime.getTitle());
             }
 
             @Override
@@ -146,7 +125,6 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 crime.setSolved(isChecked);
-                callbacks.onCrimeUpdated(crime);
             }
         });
 
@@ -266,7 +244,6 @@ public class CrimeFragment extends Fragment {
             case REQUEST_DATE:
                 Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
                 crime.setDate(date);
-                callbacks.onCrimeUpdated(crime);
                 updateDate();
                 return;
             case REQUEST_PHOTO:
@@ -280,7 +257,6 @@ public class CrimeFragment extends Fragment {
                     }
                     Photo photo = new Photo(fileName);
                     crime.setPhoto(photo);
-                    callbacks.onCrimeUpdated(crime);
                     showPhoto();
                 }
         }
