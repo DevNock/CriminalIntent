@@ -6,9 +6,12 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,6 +19,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -30,7 +34,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import java.io.File;
-import java.text.DateFormat;
 import java.text.FieldPosition;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -55,12 +58,15 @@ public class CrimeFragment extends Fragment {
     private static final String DIALOG_TIME = "time";
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_PHOTO = 1;
+    private static final int REQUEST_CONTACT = 2;
 
     private static final int DELETE_MENU = 0;
 
     private Crime crime;
     private EditText titleField;
     private Button crimeDateButton;
+    private Button suspectButton;
+    private Button reportButton;
     private CheckBox crimeSolvedCheckBox;
     private ImageButton photoButton;
     private ImageView photoView;
@@ -81,7 +87,7 @@ public class CrimeFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_crime, container, false);
 
         titleField = (EditText) view.findViewById(R.id.crimeTitle);
@@ -154,6 +160,34 @@ public class CrimeFragment extends Fragment {
                         .show(fm, DIALOG_IMAGE);
             }
         });
+
+        suspectButton = (Button) view.findViewById(R.id.crime_suspectButton);
+        suspectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK,
+                        ContactsContract.Contacts.CONTENT_URI);
+                startActivityForResult(intent, REQUEST_CONTACT);
+            }
+        });
+
+        if(crime.getSuspect() != null){
+            suspectButton.setText(crime.getSuspect());
+        }
+
+        reportButton = (Button) view.findViewById(R.id.crime_reportButton);
+        reportButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plane");
+                intent.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
+                intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
+                intent = Intent.createChooser(intent, getString(R.string.send_report));
+                startActivity(intent);
+            }
+        });
+
         registerForContextMenu(photoView);
 
         return view;
@@ -235,6 +269,29 @@ public class CrimeFragment extends Fragment {
         return fragment;
     }
 
+    private String getCrimeReport(){
+        String solvedString = null;
+        if(crime.isSolved()){
+            solvedString = getString(R.string.crime_report_solved);
+        } else{
+            solvedString = getString(R.string.crime_report_unsolved);
+        }
+
+        String dateFormat = "EEE, MMM dd";
+        String dateString = DateFormat.format(dateFormat, crime.getDate()).toString();
+
+        String suspect = crime.getSuspect();
+        if(suspect == null){
+            suspect = getString(R.string.crime_report_no_suspect);
+        } else{
+            suspect = getString(R.string.crime_report_suspect, suspect);
+        }
+
+        String report = getString(R.string.crime_report,
+                crime.getTitle(), dateString, solvedString, suspect);
+        return report;
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode != Activity.RESULT_OK) {
@@ -259,6 +316,26 @@ public class CrimeFragment extends Fragment {
                     crime.setPhoto(photo);
                     showPhoto();
                 }
+                return;
+            case REQUEST_CONTACT:
+                Uri contactUri = data.getData();
+                String[] queryFields = new String[]{
+                        ContactsContract.Contacts.DISPLAY_NAME
+                };
+                Cursor cursor = getActivity().getContentResolver()
+                        .query(contactUri, queryFields, null, null, null);
+
+                if(cursor.getCount() == 0){
+                    cursor.close();
+                    return;
+                }
+
+                cursor.moveToFirst();
+                String suspect = cursor.getString(0);
+                crime.setSuspect(suspect);
+                suspectButton.setText(suspect);
+                cursor.close();
+
         }
 
     }
